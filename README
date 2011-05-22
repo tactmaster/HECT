@@ -33,6 +33,9 @@ fail.html - the failed returned page of the last failured for a unknown reason.
 INSTALLATION/RUNNING 
 
 You need php (been tested on 5.3.6 and 5.2.17) with curl
+It has been tested on Gentoo. 
+It also runs on Slug OS 5.3 but some of the command maybe been to be recompiled to give the correct output
+
 
 place where you want it.
 
