@@ -1,8 +1,8 @@
 <?php
 
 include("getips.php");
-$username = "ed";
-$password = "test";
+$username = "";
+$password = "";
 $directory = "./hect/"; //where all the data is stored. Best absolute ref if using cron.
 $repeat = 50;
 $debug = true;
