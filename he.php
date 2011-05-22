@@ -3,7 +3,7 @@
 include("getips.php");
 $username = "";
 $password = "";
-$directory = "/HECT/";
+$directory = "./hect/"; //where all the data is stored. Best absolute ref if using cron.
 $repeat = 50;
 $debug = true;
 $timezone = new DateTimeZone('GB');
@@ -331,7 +331,11 @@ function proccessFails($pageHtml,$currentdir,$debug) {
 		} elseif (preg_match("/Sorry, you've already submitted a dig query to the same destination/i",$pageHtml,$match) ){
 			if ($debug) print "Fail - same  address dig\n";
 			return "same address";
-		} elseif (preg_match("/Result\: Fail/i",$pageHtml,$match))
+		} elseif (preg_match("/Either your username or your password is invalid./i",$pageHtml,$match)) { 
+			if ($debug) print "Fail - username and password invalid\n";
+			return "Username and password invalid";
+		}
+		elseif (preg_match("/Result\: Fail/i",$pageHtml,$match))
 		{
 		if ($debug) print "Fail - error in submission\n";
  		 $fh = fopen($currentdir."fail.html", 'a');
@@ -340,15 +344,21 @@ function proccessFails($pageHtml,$currentdir,$debug) {
 
 			return "error in submission";	
 		} else {
-		if ($debug) print "Fail\n";
-			if ($debug) print "Fail - unknown reasonn";
+			if ($debug) print "Fail - unknown reason\n";
  		 $fh = fopen($currentdir."fail.html", 'a');
                  fwrite($fh,$pageHtml);
                  fclose($fh);
-			
-			preg_match("{\<div id='vote_record'\>(.*)\</div\>}",$pageHtml,$match);	
-		if ($debug)	echo $match[1]; 
-		return "M-".$match[1];
+
+		preg_match("{\<div id='vote_record'\>(.*)\</div\>}",$pageHtml,$match);	
+
+		if (!empty($match[1]))
+		{			
+			if ($debug)	echo $match[1]; 
+			return "M-".$match[1];
+		} else
+		{
+			return "unknown error";
+		}
 		}
 }	
 
