@@ -1,26 +1,57 @@
 NAME: HECT (Hurricane Electric Certification Tool)
 
+Automatically perform test submissions for HE Certification program.
+
 WHAT IT DOES
 
-It pull down the RSS feed from 
-It add other IP address and host names to 
+It pull down the RSS feed from http://sixy.ch/feed
+It add other IP address and host names to ips.csv
+Uses this to perform the tests for HE.
+If test fail it repeats the test.
+
+
+It is a quick piece of code to the job so it is not very well written so don't be too critical of it, however improvements/feedback to edmundwatson@gmail.com 
 
 
 
+FILES
+he.php - The main run. Edit with your details.
+getips.php - this script update the ips.csv from 
+ips.php - list the IPs in ip.csv 
+ipshtml.php - list the IPs in ip.csv in html
 
-Files
+GENERATE FILE
+ip.csv - a list of ips from http://sixy.ch/feed encoded in base 64
+number.txt - keeps a reference of how far though ip.csv
+my_cookies.txt - keeps a cookie for loging in.
+%test%.html - the returned document for debugging
+%test%raw.html - the submission to he for debugging
+fail.html - the failed returned page of the last failured for a unknown reason.
 
 
-INSTALLATION
+
+INSTALLATION/RUNNING 
+
+You need php (been tested on 5.3.6 and 5.2.17) with curl
 
 place where you want it.
-%WHERE YOU PUT IT%/index.php
-and a cron task like this
+
+edit the top of 
+
+he.php
+
+you can run it manally 
+
+# php he.php
+
+and/or add cron task like this
 
 # crontab -e
 and add
-* 1 * * * /opt/bin/php /%WHERE YOU PUT IT%/index.php >>/var/log/he 2>>/var/log/he
+* 1 * * * /opt/bin/php /%WHERE YOU PUT IT%/he.php >>/var/log/he 2>>/var/log/he
 This will repeat it daily. You may want to increase the frequecy if you find it doesn't pass 24 hour on he system.
+Outputs to /var/log/he, you may want to turn off debug in he.php if you have a small system, the /var/log/he file doesn't fill up.
+
 
 
 
@@ -29,7 +60,7 @@ imduffy for this code starting point
 http://www.tunnelbroker.net/forums/index.php?topic=975.0
 
 LICENCE/DISCLAIMER
-This code is free for you to use at you own risk. I don't promise I will work or not break your system.
+This code is free for you to use at you own risk.I don't promise I will work or not break your system.
 I am not holding any rights over it. 
 
 However if you do anything fun with it let me know at edmundwatson@gmail.com
