@@ -1,8 +1,8 @@
 <?php
 
 include("getips.php");
-$username = "";
-$password = "";
+$username = "ed";
+$password = "test";
 $directory = "./hect/"; //where all the data is stored. Best absolute ref if using cron.
 $repeat = 50;
 $debug = true;
@@ -52,10 +52,18 @@ function he($username, $password,$currentdir,$repeat,$debug,$timezone)
     	curl_setopt($ch, CURLOPT_COOKIEFILE, $currentdir."my_cookies.txt");
     	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3");
-        
-	$fh = fopen($currentdir."login.txt", 'w');
-	fwrite($fh,curl_exec($ch));
+        $page = curl_exec($ch);
+	$fh = fopen($currentdir."login.html", 'w');
+	fwrite($fh,$page);
 	fclose($fh);
+	
+	//Test for login
+
+	if (preg_match("/Either your username or your password is invalid./i",$page,$match))
+	{
+	print "Login failed\n";
+	exit(1);
+	}
     
 	$tests = array(
 		array('name' => 'Whois', 'url' => "http://ipv6.he.net/certification/whois.php",'htmloutput' => 'whois.html', 'rawoutput' => 'whoisraw.txt','textareaname' => 'whoistext' ),
