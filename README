@@ -51,11 +51,9 @@ and/or add cron task like this
 
 # crontab -e
 and add
-* 1 * * * /opt/bin/php /%WHERE YOU PUT IT%/he.php >>/var/log/he 2>>/var/log/he
+* 1 * * * /php /%WHERE YOU PUT IT%/he.php >>/var/log/he 2>>/var/log/he
 This will repeat it daily. You may want to increase the frequecy if you find it doesn't pass 24 hour on he system.
 Outputs to /var/log/he, you may want to turn off debug in he.php if you have a small system, the /var/log/he file doesn't fill up.
-
-
 
 
 THANKS
@@ -63,7 +61,7 @@ imduffy for this code starting point
 http://www.tunnelbroker.net/forums/index.php?topic=975.0
 
 LICENCE/DISCLAIMER
-This code is free for you to use at you own risk.I don't promise I will work or not break your system.
+This code is free for you to use at you own risk.I don't promise it will work. I also don't promise it will not break your system.So use at your own risk. 
 I am not holding any rights over it. 
 
 However if you do anything fun with it let me know at edmundwatson@gmail.com
@@ -71,7 +69,7 @@ However if you do anything fun with it let me know at edmundwatson@gmail.com
 LINKS TO HE
 This has not been endored by HE however they seem to have no opjections if you read the forum.
 http://www.tunnelbroker.net/forums
-I have nothing to do with Hurricane Electric other than I am user their IPv6 Tunnel and am on their certication program.
+I have nothing to do with Hurricane Electric other than I am user their IPv6 tunnelbroker and I am on their certication program.
 My username is edmundwatson and you can find me here
 http://ipv6.he.net/certification/scoresheet.php?pass_name=edmundwatson
 
