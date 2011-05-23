@@ -51,7 +51,7 @@ function he($username, $password,$currentdir,$repeat,$debug,$timezone)
     	curl_setopt($ch, CURLOPT_COOKIEJAR, "");
     	curl_setopt($ch, CURLOPT_COOKIEFILE, $currentdir."my_cookies.txt");
     	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3");
+    	curl_setopt($ch, CURLOPT_USERAGENT, "PHP cUrl HECT 0.1"); //being nice to HE so they can track usage if they wish.
         $page = curl_exec($ch);
 	$fh = fopen($currentdir."login.html", 'w');
 	fwrite($fh,$page);
