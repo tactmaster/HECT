@@ -20,7 +20,7 @@ getips.php - this script update the ips.csv from
 ips.php - list the IPs in ip.csv 
 ipshtml.php - list the IPs in ip.csv in html
 
-GENERATE FILE
+GENERATED FILE
 ip.csv - a list of ips from http://sixy.ch/feed encoded in base 64
 number.txt - keeps a reference of how far though ip.csv
 my_cookies.txt - keeps a cookie for loging in.
