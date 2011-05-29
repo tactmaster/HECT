@@ -18,9 +18,9 @@
 */
 require_once 'setting.php';
 function loadSettings() {
-    if (file_exists("setting.josn"))
+    if (file_exists("setting.json"))
     {
-    $filedata = file_get_contents("setting.josn");
+    $filedata = file_get_contents("setting.json");
     $json = json_decode($filedata, true);
     
     //var_dump($json);
@@ -50,7 +50,7 @@ function loadSettings() {
 }
 
 function saveSettings($setting) {
-        $fh = fopen("setting.josn", 'w');
+        $fh = fopen("setting.json", 'w');
 		
 	
         //var_dump($setting);

@@ -39,14 +39,15 @@ It also runs on Slug OS 5.3 but some of the command maybe been to be recompiled 
 
 place where you want it.
 
-edit the top of 
 
-he.php
+edit the setting.php file with your username, password and directory where you want the working files to go.
 
-you can run it manally 
 
-# php he.php
+#php he.php
 
+again and it will perform all the tests
+
+ 
 and/or add cron task like this
 
 # crontab -e

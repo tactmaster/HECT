@@ -1,14 +1,9 @@
 <?php
 
-print "Start";
 require_once "getips.php";
-print ".";
 require_once 'commands.php';
-print ".";
 require_once 'setting.php';
-print ".";
 $settings = loadSettings();
-print ".\n";
 $settings = he($settings);
 //saveSettings($settings);
 
@@ -37,7 +32,6 @@ function he($settings) {
     if (!file_exists($settings->directory)) {
         mkdir($settings->directory, 0700, TRUE);
     }
-    print "Next\n";
 
     if ($settings->debug) {
 
@@ -45,10 +39,8 @@ function he($settings) {
 
         print "Start:" . $time->format(DATE_RFC822) . "\n";
     }
-    print "Next\n";
 
     getIPs($settings);
-    print "Get Address\n";
     $address = getAddress($settings);
 
     if ($settings->debug)
@@ -258,8 +250,12 @@ function performRepeat($test, $ch, $address, $settings) {
 
         $pageHtml = performTest($test, $settings, $ch, $address);
         if (preg_match("/Result\: Pass/i", $pageHtml, $match)) {
-            print "Pass\n";
+            if ($settings->debug) print "Pass\n";
             recordSuccess($test, "Pass", $address, $settings);
+             $time = new DateTime("now");
+    $date = $time->format("c");
+            $test->lastdone =  $date;
+            saveSettings($setting);
             return TRUE;
             break;
         } else {
@@ -311,6 +307,14 @@ function proccessFails($pageHtml, $settings) {
         if ($settings->debug)
             print "Fail - same  address dig\n";
         return "same address";
+    }
+    
+
+     elseif (preg_match("/like you submitted an invalid/i", $pageHtml, $match)) {
+        if ($settings->debug)
+            print "Fail - invalid submission\n";
+        return "invalid submission";
+    
     } elseif (preg_match("/Result\: Fail/i", $pageHtml, $match)) {
         if ($settings->debug)
             print "Fail - error in submission\n";
