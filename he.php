@@ -67,10 +67,16 @@ function he($settings) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3");
 
-    $fh = fopen($settings->directory . "login.txt", 'w');
-    fwrite($fh, curl_exec($ch));
-    fclose($fh);
-
+   // $fh = fopen($settings->directory . "login.txt", 'w');
+   // fwrite($fh, curl_exec($ch));
+   // fclose($fh);
+    
+    if (preg_match("/Either your username or your password is invalid./i", curl_exec($ch),$match))
+	{
+	print "Login failed\n";
+	exit(1);
+    
+        }
     $tests = $settings->tests;
     foreach ($tests as $test) {
         echo $test['name'] . "\n";

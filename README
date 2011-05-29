@@ -20,7 +20,7 @@ getips.php - this script update the ips.csv from
 ips.php - list the IPs in ip.csv 
 ipshtml.php - list the IPs in ip.csv in html
 
-GENERATE FILE
+GENERATED FILE
 ip.csv - a list of ips from http://sixy.ch/feed encoded in base 64
 number.txt - keeps a reference of how far though ip.csv
 my_cookies.txt - keeps a cookie for loging in.
@@ -33,6 +33,9 @@ fail.html - the failed returned page of the last failured for a unknown reason.
 INSTALLATION/RUNNING 
 
 You need php > 5 (been tested on 5.3.6 and 5.2.17) with curl. If you need to run it on PHP < 5 let me know
+It has been tested on Gentoo. 
+It also runs on Slug OS 5.3 but some of the command maybe been to be recompiled to give the correct output
+
 
 place where you want it.
 
@@ -48,11 +51,9 @@ and/or add cron task like this
 
 # crontab -e
 and add
-* 1 * * * /opt/bin/php /%WHERE YOU PUT IT%/he.php >>/var/log/he 2>>/var/log/he
+* 1 * * * /php /%WHERE YOU PUT IT%/he.php >>/var/log/he 2>>/var/log/he
 This will repeat it daily. You may want to increase the frequecy if you find it doesn't pass 24 hour on he system.
 Outputs to /var/log/he, you may want to turn off debug in he.php if you have a small system, the /var/log/he file doesn't fill up.
-
-
 
 
 THANKS
@@ -60,15 +61,17 @@ imduffy for this code starting point
 http://www.tunnelbroker.net/forums/index.php?topic=975.0
 
 LICENCE/DISCLAIMER
-This code is free for you to use at you own risk.I don't promise I will work or not break your system.
+This code is free for you to use at you own risk.I don't promise it will work. I also don't promise it will not break your system.So use at your own risk. 
 I am not holding any rights over it. 
 
 However if you do anything fun with it let me know at edmundwatson@gmail.com
 
+There are a few file that are from another project which are GPL3. They are labeled at the top at the top of each file.
+
 LINKS TO HE
-This has not been endored by HE however they seem to have no opjections if you read the forum.
+This has not been endorsed  by HE however they seem to have no objections  if you read the forum.
 http://www.tunnelbroker.net/forums
-I have nothing to do with Hurricane Electric other than I am user their IPv6 Tunnel and am on their certication program.
+I have nothing to do with Hurricane Electric other than I am user their IPv6 tunnelbroker and I am on their certification program.
 My username is edmundwatson and you can find me here
 http://ipv6.he.net/certification/scoresheet.php?pass_name=edmundwatson
 
