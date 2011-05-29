@@ -1,355 +1,338 @@
 <?php
 
-include("getips.php");
-$username = "";
-$password = "";
-$directory = "/HECT/";
-$repeat = 50;
-$debug = true;
-$timezone = new DateTimeZone('GB');
+print "Start";
+require_once "getips.php";
+print ".";
+require_once 'commands.php';
+print ".";
+require_once 'setting.php';
+print ".";
+$settings = loadSettings();
+print ".\n";
+$settings = he($settings);
+//saveSettings($settings);
 
 
 
-he($username,$password,$directory,$repeat, $debug,$timezone);
+print "End\n";
+
+//$settings->username = "";
+///$password = "";
+//$directory = "/HECT/";
+//$settings->repeat = 50;
+//$settings->debug = true;
+//$settings->timezone = new DateTimeZone('GB');
+//he($settings->username,$password,$directory,$settings->repeat, $settings->debug,$settings->timezone);
 
 /*
 
-Main function
+  Main function
 
-*/
-function he($username, $password,$currentdir,$repeat,$debug,$timezone)
-{
-	if($debug) print("Current Dir: ".$currentdir."\n");
-	//making dir is doesn't exist
-	if (!file_exists($currentdir))
-	{
-		mkdir($currentdir,0700,TRUE);
-	}
+ */
+function he($settings) {
+    date_default_timezone_set($settings->timezone);
+    if ($settings->debug)
+        print("Current Dir: " . $settings->directory . "\n");
+    //making dir is doesn't exist
+    if (!file_exists($settings->directory)) {
+        mkdir($settings->directory, 0700, TRUE);
+    }
+    print "Next\n";
 
-	$passresults = "resultspass.csv";
-	if($debug)
-	{ 
-		$time =  new DateTime("now",$timezone);
-		print "Start:".$time->format(DATE_RFC822)."\n";    
-		
-	}
+    if ($settings->debug) {
 
-	
-	getIPs($currentdir,$debug);
-	$address = getAddress($currentdir,$debug);
+        $time = new DateTime("now");
 
-	if($debug) echo "IP:".$address['ip']." Host:".$address['host']."\n";
+        print "Start:" . $time->format(DATE_RFC822) . "\n";
+    }
+    print "Next\n";
 
-	//
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, 'http://ipv6.he.net/certification/login.php');
-    	curl_setopt($ch, CURLOPT_POSTFIELDS,'f_user='.urlencode($username).'&f_pass='.urlencode(md5($password))).'&Login=Login';
-    	curl_setopt($ch, CURLOPT_POST, 1);
-    	curl_setopt($ch, CURLOPT_HEADER, 0);
-    	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    	curl_setopt($ch, CURLOPT_COOKIEJAR, "");
-    	curl_setopt($ch, CURLOPT_COOKIEFILE, $currentdir."my_cookies.txt");
-    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3");
-        
-	$fh = fopen($currentdir."login.txt", 'w');
-	fwrite($fh,curl_exec($ch));
-	fclose($fh);
-    
-	$tests = array(
-		array('name' => 'Whois', 'url' => "http://ipv6.he.net/certification/whois.php",'htmloutput' => 'whois.html', 'rawoutput' => 'whoisraw.txt','textareaname' => 'whoistext' ),
-		array('name' => 'Ping', 'url' => "http://ipv6.he.net/certification/ping.php",'htmloutput' => 'ping.html', 'rawoutput' => 'pingraw.txt' ,'textareaname' => 'pingtext' ),
-		array('name' => 'dig PTR', 'url' => "http://ipv6.he.net/certification/dig2.php",'htmloutput' => 'dig2.html', 'rawoutput' => 'dig2raw.txt' ,'textareaname' => 'digtext' ),
-		array('name' => 'dig AAAA', 'url' => "http://ipv6.he.net/certification/dig.php",'htmloutput' => 'dig.html', 'rawoutput' => 'digraw.txt','textareaname' => 'digtext'  ),
-		array('name' => 'Traceroute', 'url' => "http://ipv6.he.net/certification/daily_trace.php",'htmloutput' => 'tracert.html', 'rawoutput' => 'traceraw.txt' ,'textareaname' => 'trtext' )
-		);
+    getIPs($settings);
+    print "Get Address\n";
+    $address = getAddress($settings);
 
-	foreach($tests as $test)
-	{
-		echo $test['name']."\n";
-		curl_setopt($ch, CURLOPT_URL, $test['url']);
-		curl_setopt($ch, CURLOPT_POST, 0);
+    if ($settings->debug)
+        echo "IP:" . $address['ip'] . " Host:" . $address['host'] . "\n";
 
-		$pageHtml = curl_exec($ch);
-		preg_match("{\<div id='vote_record'\>(.*)\</div\>}",$pageHtml,$match);	
-		$nextq = FALSE;
-		if (count($match) > 0)
-		{
-			if (preg_match("/Sorry, you've already submitted an IPv6/i",$match[1]))
-			{
-				if($debug)	echo "Done\n";
-			} else {
-				if($debug)
-				{
-					echo "Something else\n";
-					print_r($match);
-				}
-			}
-		} else	{
-			if($debug) echo "Not Done\n";
-			$nextq =  performRepeat($test,$repeat,$currentdir,$ch,$address,$passresults,$debug,$timezone) || $nextq;
-		}	
+    //
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'http://ipv6.he.net/certification/login.php');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, 'f_user=' . urlencode($settings->username) . '&f_pass=' . urlencode(md5($settings->password))) . '&Login=Login';
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_COOKIEJAR, "");
+    curl_setopt($ch, CURLOPT_COOKIEFILE, $settings->directory . "my_cookies.txt");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3");
 
-	}
+    $fh = fopen($settings->directory . "login.txt", 'w');
+    fwrite($fh, curl_exec($ch));
+    fclose($fh);
+
+    $tests = $settings->tests;
+    foreach ($tests as $test) {
+        echo $test['name'] . "\n";
+        curl_setopt($ch, CURLOPT_URL, $test['url']);
+        curl_setopt($ch, CURLOPT_POST, 0);
+
+        $pageHtml = curl_exec($ch);
+        preg_match("{\<div id='vote_record'\>(.*)\</div\>}", $pageHtml, $match);
+        $nextq = FALSE;
+        if (count($match) > 0) {
+            if (preg_match("/Sorry, you've already submitted an IPv6/i", $match[1])) {
+                if ($settings->debug)
+                    echo "Done\n";
+            } else {
+                if ($settings->debug) {
+                    echo "Something else\n";
+                    print_r($match);
+                }
+            }
+        } else {
+            if ($settings->debug)
+                echo "Not Done\n";
+            $nextq = performRepeat($test, $ch, $address, $settings) || $nextq;
+        }
+    }
 // Check if any test has been done. If so go to next address
-	if ($nextq) 
-	{
-		nextnumber($currentdir,$debug);
-	}
+    if ($nextq) {
+        nextnumber($settings);
+    }
 
 
-	if($debug)
-	{
-		$time =  new DateTime("now",$timezone);
-		print "Done:".$time->format(DATE_RFC822)."\n";  
-
-
-		
-	}
-}
-function performTest($test,$currentdir,$ch,$address,$debug)
-	{
-
-	switch ($test['name']){
-		case 'Whois': $test['command'] =  "whois ".$address['ip']; break;
-		case 'Ping': $test['command'] =  "ping6 ".$address['ip']." -c 3"; break;
-		case 'dig PTR': $test['command'] =  "dig -x ".$address['ip']." PTR"; break;
-		case 'dig AAAA': $test['command'] =  "dig ".$address['host']." AAAA"; break;
-		case 'Traceroute': $test['command'] =  "traceroute -6 ".$address['ip']; break;
-	}
-
-	if ($debug)	echo "Performing Test..\n";
-	$command = shell_exec($test['command']);
-
-	curl_setopt($ch, CURLOPT_URL, $test['url']);
-    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    	curl_setopt($ch, CURLOPT_POST, true);
-
-	$data = array(
-    		$test['textareaname'] => $command,
-    		'submit' => 'Submit',
-    		);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-	$pageHtml = curl_exec($ch);
-	$fh = fopen($currentdir.$test['htmloutput'], 'w');
- 	fwrite($fh,$pageHtml );
-	fclose($fh);
-	$fh = fopen($currentdir.$test['rawoutput'], 'w');
- 	fwrite($fh,$command );
-	fclose($fh);
-
-	return $pageHtml;
-
+    if ($settings->debug) {
+        $time = new DateTime("now");
+        print "Done:" . $time->format(DATE_RFC822) . "\n";
+    }
 }
 
+function performTest($test, $settings, $ch, $address) {
+    $cmd = str_replace("{ip}", $address['ip'], $test['command']);
+    $cmd = str_replace("{host}", $address['host'], $cmd);
 
-/*
 
-Not used
-Get the your scores of $username and put it in to csv file called source.cvs
+    if ($settings->debug)
+        echo "Performing Test..\n";
+    if ($settings->debug)
+        $cmd . "\n";
+    $command = shell_exec($test['command']);
 
-*/
+    curl_setopt($ch, CURLOPT_URL, $test['url']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_POST, true);
 
-function checkscore($username,$currentdir){
+    $data = array(
+        $test['textareaname'] => $command,
+        'submit' => 'Submit',
+    );
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    $pageHtml = curl_exec($ch);
+    $fh = fopen($settings->directory . $test['htmloutput'], 'w');
+    fwrite($fh, $pageHtml);
+    fclose($fh);
+    $fh = fopen($settings->directory . $test['rawoutput'], 'w');
+    fwrite($fh, $command);
+    fclose($fh);
 
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, 'http://ipv6.he.net/certification/scoresheet.php?pass_name='.$username);
-
-   
-    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3");
-    	$pageHtml = curl_exec($ch);
-    
-	preg_match("{\<td align=right\>Current Score: \<font color=blue\>\<b\>(.*)\</b>}",$pageHtml,$match);	
-	$total =str_replace(",", "", $match[1]) ;
-
-	preg_match("{\<b\>Daily Traceroute\</b\> &nbsp;; Score: (.*)/ 100\</div\>}",$pageHtml,$match);
-	$traceroot = $match[1];
-	preg_match("{\<b\>Daily Dig \(AAAA\)\</b\> &nbsp;; Score: (.*)/ 100\</div\>}",$pageHtml,$match);
-	$digaaaa = $match[1];
-	preg_match("{\<b\>Daily Ping6\</b\> &nbsp;; Score: (.*)/ 100\</div\>}",$pageHtml,$match);
-	$ping = $match[1];
-	preg_match("{\<b\>Daily Whois\</b\> &nbsp;; Score: (.*)/ 100\</div\>}",$pageHtml,$match);
-	$whois = $match[1];
-	preg_match("{\<b\>Daily Dig \(PTR\)\</b\> &nbsp;; Score: (.*)/ 100\</div\>}",$pageHtml,$match);
-	$digptr = $match[1];
-	echo "Total Score: ".$total."</td><td> Tracert: ".$traceroot." Dig (AAAA): ".$digaaaa." Dig (PTR): ".$digptr." Daily Whois: ".$whois ." Ping6: ".$ping."\n";
-	$sorcehandle = fopen($currentdir."score.csv", "a");
-	$date = date('c');  
-	fwrite($sorcehandle,$date.','.$total.','.$traceroot.','.$ping.','.$whois.','.$digptr.','.$digaaaa."\n");
-	fclose($sorcehandle);
+    return $pageHtml;
 }
 
 /*
 
-Get and address from ip
+  Not used
+  Get the your scores of $settings->username and put it in to csv file called source.cvs
 
-*/
+ */
 
-function getAddress($currentdir,$debug) {
+function checkscore($settings) {
 
-	$number = getNumber($currentdir,$debug);
-	$iphandle = fopen($currentdir."ip.csv", "r");
-	for ($i = 0; $i <= $number; $i++) {
-		$ipdata = fgetcsv($iphandle);
-	}
-	fclose($iphandle);    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'http://ipv6.he.net/certification/scoresheet.php?pass_name=' . $settings->username);
 
-	if (count($ipdata) < 2) { 
-		print "Ran Out\n";
-		getIPs($currentdir,$debug);
-		zeronumber($currentdir,$debug);
-		$number=0;
-		$iphandle = fopen($currentdir."ip.csv", "r");
-		for ($i = 0; $i <= $number; $i++) {
-			$ipdata = fgetcsv($iphandle);
-		}
-		fclose($iphandle);    
-		if (count($ipdata) != 2)
-		{
-		print "No IP Addresses to use\n";
-		exit(1);
-		}
-	}
 
-	$host = escapeshellcmd(base64_decode($ipdata[0]));
-	$ip = escapeshellcmd(base64_decode($ipdata[1]));
-	$address = array ( 'host' => escapeshellcmd(base64_decode($ipdata[0])), 'ip' => escapeshellcmd(base64_decode($ipdata[1])));
-	return $address;
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3");
+    $pageHtml = curl_exec($ch);
 
+    preg_match("{\<td align=right\>Current Score: \<font color=blue\>\<b\>(.*)\</b>}", $pageHtml, $match);
+    $total = str_replace(",", "", $match[1]);
+
+    preg_match("{\<b\>Daily Traceroute\</b\> &nbsp;; Score: (.*)/ 100\</div\>}", $pageHtml, $match);
+    $traceroot = $match[1];
+    preg_match("{\<b\>Daily Dig \(AAAA\)\</b\> &nbsp;; Score: (.*)/ 100\</div\>}", $pageHtml, $match);
+    $digaaaa = $match[1];
+    preg_match("{\<b\>Daily Ping6\</b\> &nbsp;; Score: (.*)/ 100\</div\>}", $pageHtml, $match);
+    $ping = $match[1];
+    preg_match("{\<b\>Daily Whois\</b\> &nbsp;; Score: (.*)/ 100\</div\>}", $pageHtml, $match);
+    $whois = $match[1];
+    preg_match("{\<b\>Daily Dig \(PTR\)\</b\> &nbsp;; Score: (.*)/ 100\</div\>}", $pageHtml, $match);
+    $digptr = $match[1];
+    echo "Total Score: " . $total . "</td><td> Tracert: " . $traceroot . " Dig (AAAA): " . $digaaaa . " Dig (PTR): " . $digptr . " Daily Whois: " . $whois . " Ping6: " . $ping . "\n";
+    $sorcehandle = fopen($settings->directory . "score.csv", "a");
+    $date = date('c');
+    fwrite($sorcehandle, $date . ',' . $total . ',' . $traceroot . ',' . $ping . ',' . $whois . ',' . $digptr . ',' . $digaaaa . "\n");
+    fclose($sorcehandle);
 }
 
-function getNumber($currentdir,$debug)
-{
-	touch($currentdir."number.txt");
-	$numberhandle = fopen($currentdir."number.txt","r");
-	$number = fgets($numberhandle);
-	if (!is_numeric($number))
-	{
-		$number = 0; 
-	}
-	fclose($numberhandle);
-	if($debug) print "Number:".$number."\n";
-	return $number;
+/*
+
+  Get and address from ip
+
+ */
+
+function getAddress($settings) {
+
+
+    $iphandle = fopen($settings->directory . "ip.csv", "r");
+    for ($i = 0; $i <= $settings->number; $i++) {
+        $ipdata = fgetcsv($iphandle);
+    }
+    fclose($iphandle);
+
+    if (count($ipdata) < 2) {
+        print "Ran Out\n";
+        getIPs($settings);
+        zeronumber($settings);
+        $number = 0;
+        $iphandle = fopen($settings->directory . "ip.csv", "r");
+        $ipdata = fgetcsv($iphandle);
+        fclose($iphandle);
+        if (count($ipdata) != 2) {
+            print "No IP Addresses to use\n";
+            saveSetting($settings);
+            exit(1);
+        }
+    }
+
+    $host = escapeshellcmd(base64_decode($ipdata[0]));
+    $ip = escapeshellcmd(base64_decode($ipdata[1]));
+    $address = array('host' => escapeshellcmd(base64_decode($ipdata[0])), 'ip' => escapeshellcmd(base64_decode($ipdata[1])));
+    return $address;
 }
 
-function zeronumber($currentdir,$debug)
-{
-	$number = 0;
-	$fh = fopen($currentdir."number.txt","w");
-	
-	fclose($fh);    
+//function getNumber($settings)
+//{
+//	touch($settings->directory."number.txt");
+//	$numberhandle = fopen($settings->directory."number.txt","r");
+//	$number = fgets($numberhandle);
+//	if (!is_numeric($number))
+//	{
+//		$number = 0; 
+//	}
+//	fclose($numberhandle);
+//	if($settings->debug) print "Number:".$number."\n";
+//	return $number;
+//}
+
+function zeronumber($settings) {
+    $settings->number = 0;
+    saveSettings($settings);
+    //     return $settings; //Not needed as PHP is pass by ref.
+//	$fh = fopen($settings->directory."number.txt","w");
+//	fclose($fh);    
 }
 
-function nextnumber($currentdir,$debug)
-{
-	$number = getNumber($currentdir,$debug);
-	$number = $number + 1;
-	$nextnum = fopen($currentdir."number.txt","w");
-	fwrite($nextnum,$number);
-	fclose($nextnum);    
-	if($debug) print "Next number:".$number." Written bytes:".$number."\n";
-	//getNumber($currentdir,$debug);
+function nextnumber($settings) {
+    //$number = getNumber($settings->directory,$settings->debug);
+    $settings->number = $settings->number + 1;
+    saveSettings($settings);
+    return $settings;
+//$nextnum = fopen($settings->directory."number.txt","w");
+    //fwrite($nextnum,$number);
+    //fclose($nextnum);    
+    //if($settings->debug) print "Next number:".$number." Written bytes:".$number."\n";
+    //getNumber($settings->directory,$settings->debug);
 }
 
+function performRepeat($test, $ch, $address, $settings) {
+    for ($i = 0; $i < $settings->repeat; $i++) {
+        print "Performing again : " . $i . "\n";
 
-function performRepeat($test,$repeat,$currentdir,$ch,$address,$passresults,$debug,$timezone)
-{
-	for ($i = 0; $i < $repeat;$i++){
-		print "Performing again : ".$i."\n";
-
-		$pageHtml =  performTest($test,$currentdir,$ch,$address,$debug);
-		if (preg_match("/Result\: Pass/i",$pageHtml,$match)){
-			print "Pass\n";	
-			recordSuccess($test,$passresults,"Pass",$address,$currentdir,$timezone);
-			return TRUE;
-			break;
-		} else	{
+        $pageHtml = performTest($test, $settings, $ch, $address);
+        if (preg_match("/Result\: Pass/i", $pageHtml, $match)) {
+            print "Pass\n";
+            recordSuccess($test, "Pass", $address, $settings);
+            return TRUE;
+            break;
+        } else {
 //			preg_match("{\<div id='vote_record'\>(.*)\</div\>}",$pageHtml,$match);	
 //			echo $match[1]; 
 
-			$failinfo =	proccessFails($pageHtml,$currentdir,$debug);
-		
-			recordSuccess($test,$passresults,"F-".$failinfo,$address,$currentdir,$timezone);
+            $failinfo = proccessFails($pageHtml, $settings);
 
-			nextnumber($currentdir,$debug);
-			$address = getAddress($currentdir,$debug);
+            recordSuccess($test, "F-" . $failinfo, $address, $settings);
 
-		}
-
-	}
+            nextnumber($settings);
+            $address = getAddress($settings);
+        }
+    }
 }
 
+function recordSuccess($test, $success, $address, $settings) {
+    $time = new DateTime("now");
+    $date = $time->format("c");
+    
+    $fh = fopen($settings->directory.$settings->passresults, 'a');
 
 
-
-
-
-
-
-
-function recordSuccess($test,$file,$success,$address,$currentdir,$timezone)
-{
-$time =  new DateTime("now",$timezone);
-		$date =  $time->format("c");   
-//	$date = date('c');  
-
-	
-	$fh = fopen($currentdir.$file, 'a');
-	
-	
-	fwrite($fh,$date.','.$test['name'].','.$success.','.$address['host'].','.$address['ip']."\n");
-	fclose($fh);
-
+    fwrite($fh, $date . ',' . $test['name'] . ',' . $success . ',' . $address['host'] . ',' . $address['ip'] . "\n");
+    fclose($fh);
 }
 
+function proccessFails($pageHtml, $settings) {
+    if (preg_match("/Sorry, you've already submitted a whois query that has the same netblock/i", $pageHtml, $match)) {
 
-function proccessFails($pageHtml,$currentdir,$debug) {
-		if (preg_match("/Sorry, you've already submitted a whois query that has the same netblock/i",$pageHtml,$match))
-		{
+        if ($settings->debug)
+            print "Fail - whois same netblock\n";
+        return "same netblock";
+    }
+    elseif (preg_match("/Sorry, this page is for dig forward submission only/i", $pageHtml, $match)) {
+        if ($settings->debug)
+            print "Fail - forward dig\n";
+        return "forward dig";
+    } elseif (preg_match("/Sorry, you've already submitted a traceroute/i", $pageHtml, $match)) {
+        if ($settings->debug)
+            print "Fail - same  traceroute\n";
+        return "same address";
+    } elseif (preg_match("/Sorry, you've already submitted a ping output to the same destination/i", $pageHtml, $match)) {
+        if ($settings->debug)
+            print "Fail - same ping\n";
 
-			if ($debug) print "Fail - whois same netblock\n";	
-			return "same netblock";
+        return "same address";
+    } elseif (preg_match("/Sorry, you've already submitted a dig query to the same destination/i", $pageHtml, $match)) {
+        if ($settings->debug)
+            print "Fail - same  address dig\n";
+        return "same address";
+    } elseif (preg_match("/Result\: Fail/i", $pageHtml, $match)) {
+        if ($settings->debug)
+            print "Fail - error in submission\n";
+        $fh = fopen($settings->directory . "fail.html", 'a');
+        fwrite($fh, $pageHtml);
+        fclose($fh);
 
-		}
-		elseif (preg_match("/Sorry, this page is for dig forward submission only/i",$pageHtml,$match))
-		{
-			 if ($debug) print "Fail - forward dig\n";	
-			return "forward dig";
+        return "error in submission";
+    } else {
+        if ($settings->debug)
+            print "Fail\n";
+        if ($settings->debug)
+            print "Fail - unknown reason\n";
+        $fh = fopen($settings->directory . "fail.html", 'w');
+        fwrite($fh, $pageHtml);
+        fclose($fh);
 
-		} elseif (preg_match("/Sorry, you've already submitted a traceroute/i",$pageHtml,$match) ){
-			if ($debug) print "Fail - same  traceroute\n";	
-			return "same address";
-			
-		} elseif (preg_match("/Sorry, you've already submitted a ping output to the same destination/i",$pageHtml,$match) ){
-			if ($debug) print "Fail - same ping\n";	
-		
-			return "same address";
-		
-	
-		} elseif (preg_match("/Sorry, you've already submitted a dig query to the same destination/i",$pageHtml,$match) ){
-			if ($debug) print "Fail - same  address dig\n";
-			return "same address";
-		} elseif (preg_match("/Result\: Fail/i",$pageHtml,$match))
-		{
-		if ($debug) print "Fail - error in submission\n";
- 		 $fh = fopen($currentdir."fail.html", 'a');
-                 fwrite($fh,$pageHtml);
-                 fclose($fh);
+        preg_match("{\<div id='vote_record'\>(.*)\</div\>}", $pageHtml, $match);
+        if (count($match) > 2) {
+            if ($settings->debug)
+                echo $match[1];
 
-			return "error in submission";	
-		} else {
-		if ($debug) print "Fail\n";
-			if ($debug) print "Fail - unknown reasonn";
- 		 $fh = fopen($currentdir."fail.html", 'a');
-                 fwrite($fh,$pageHtml);
-                 fclose($fh);
-			
-			preg_match("{\<div id='vote_record'\>(.*)\</div\>}",$pageHtml,$match);	
-		if ($debug)	echo $match[1]; 
-		return "M-".$match[1];
-		}
-}	
+            return "M-" . $match[1];
+        }
+        else {
+            return "unknown error";
+        }
+    }
+}
 
 ?>

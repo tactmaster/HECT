@@ -32,7 +32,7 @@ fail.html - the failed returned page of the last failured for a unknown reason.
 
 INSTALLATION/RUNNING 
 
-You need php (been tested on 5.3.6 and 5.2.17) with curl
+You need php > 5 (been tested on 5.3.6 and 5.2.17) with curl. If you need to run it on PHP < 5 let me know
 
 place where you want it.
 

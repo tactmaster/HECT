@@ -3,10 +3,10 @@
 Gets all the ip from "http://sixy.ch/feed" and put the in ips.cvs
 */
 
-function getIPs($currentdir,$debug)
+function getIPs($settings)
 {
 
-if ($debug) print "RSS Check ";
+if ($settings->debug) print "RSS Check ";
 // Old method
 // $xml= simplexml_load_file("http://sixy.ch/feed");
 
@@ -14,7 +14,7 @@ if ($debug) print "RSS Check ";
 //Have long wait for timeout for some reason getting to sixy was slow at time of testing
 $xml = loadXML2("sixy.ch","/feed", 100);
 
-touch($currentdir."ip.csv");
+touch($settings->directory."ip.csv");
 
 if ($xml && !empty($xml))
 {
@@ -35,7 +35,7 @@ foreach($xml->entry as $entry) {
 	// checking to see if ip alread in list. MASSIVELY INEFFICENT. however should be ok as small number of entires. DB better here.
 	if ($ip != "" && $title != "")
 	{
-	        $iphandle = fopen($currentdir."ip.csv", "r");
+	        $iphandle = fopen($settings->directory."ip.csv", "r");
 				$found = 0;			
 //			print "founding:$ip \n";
 
@@ -55,8 +55,8 @@ foreach($xml->entry as $entry) {
 
 		if (!$found)
 		{
-			if ($debug) print "adding:$entry->title $ipcheck $title  $ip \n";
-			$handle = fopen($currentdir."ip.csv", "a");
+			if ($settings->debug) print "adding:$entry->title $ipcheck $title  $ip \n";
+			$handle = fopen($settings->directory."ip.csv", "a");
 			fwrite($handle,$title.','.$ip."\n");
 			fclose($handle);
 		}	
@@ -66,14 +66,14 @@ foreach($xml->entry as $entry) {
 }
 } else 
 {
-if ($debug){
+if ($settings->debug){
  print "Feed download failed\n";
 var_dump($xml); 
 }
 }
 
 $count = 0;
-$iphandle = fopen($currentdir."ip.csv", "r");
+$iphandle = fopen($settings->directory."ip.csv", "r");
 $ipdata = fgetcsv($iphandle);
 
 	while (count($ipdata) == 2)
@@ -85,7 +85,7 @@ $ipdata = fgetcsv($iphandle);
 	}
 
 fclose($iphandle);
-if ($debug) print "Count:".$count."\n";
+if ($settings->debug) print "Count:".$count."\n";
 }
 
 /*
