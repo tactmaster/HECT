@@ -22,7 +22,7 @@ if ($xml && !empty($xml))
 foreach($xml->entry as $entry) {
 	$title = base64_encode($entry->title);
 	//getting ip from dig
-	$arip = preg_split("/((?<!\\\|\r)\n)|((?<!\\\)\r\n)/",trim(shell_exec("dig $entry->title AAAA +short")));
+	$arip = preg_split("/((?<!\\\|\r)\n)|((?<!\\\)\r\n)/",trim(shell_exec("dig ".escapeshellcmd($entry->title)." AAAA +short")));
 	//may have multiply ips so adds them a different entries.	
 	foreach($arip as $ipraw)
 	{
