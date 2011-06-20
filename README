@@ -52,6 +52,9 @@ and add
 * 1 * * * /php /%WHERE YOU PUT IT%/he.php >>/var/log/he 2>>/var/log/he
     This will repeat it daily. You may want to increase the frequency if you find it doesn't pass 24 hour on he system.
 Outputs to /var/log/he, you may want to turn off debug in he.php if you have a small system, the /var/log/he file doesn't fill up.
+Have a look here for some idea of how to make it run just a bit over 24hrs
+http://www.tunnelbroker.net/forums/index.php?topic=1763
+
 
 
 THANKS
