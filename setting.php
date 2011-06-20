@@ -4,7 +4,7 @@ class Setting {
 
 public $username = "";
 public $password = "";
-public $directory = "/HECT/";
+public $directory = "HECT/";
 public $repeat = 50;
 public $number = 0;
 public $debug = true;

@@ -3,13 +3,13 @@
 require_once "getips.php";
 require_once 'commands.php';
 require_once 'setting.php';
+
 $settings = loadSettings();
+saveSettings($settings);
 $settings = he($settings);
-//saveSettings($settings);
 
 
 
-print "End\n";
 
 //$settings->username = "";
 ///$password = "";
@@ -30,7 +30,11 @@ function he($settings) {
         print("Current Dir: " . $settings->directory . "\n");
     //making dir is doesn't exist
     if (!file_exists($settings->directory)) {
-        mkdir($settings->directory, 0700, TRUE);
+        if (!mkdir($settings->directory, 0700, TRUE))
+        {
+            print "Failed to create place to store data";
+            exit(1);
+        }
     }
 
     if ($settings->debug) {
@@ -43,8 +47,7 @@ function he($settings) {
     getIPs($settings);
     $address = getAddress($settings);
 
-    if ($settings->debug)
-        echo "IP:" . $address['ip'] . " Host:" . $address['host'] . "\n";
+   
 
     //
     $ch = curl_init();
@@ -109,13 +112,16 @@ function he($settings) {
 function performTest($test, $settings, $ch, $address) {
     $cmd = str_replace("{ip}", $address['ip'], $test['command']);
     $cmd = str_replace("{host}", $address['host'], $cmd);
-
+    
 
     if ($settings->debug)
+    {
         echo "Performing Test..\n";
+    echo $cmd."\n";
+    }
     if ($settings->debug)
         $cmd . "\n";
-    $command = shell_exec($test['command']);
+    $command = shell_exec($cmd);
 
     curl_setopt($ch, CURLOPT_URL, $test['url']);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -207,6 +213,8 @@ function getAddress($settings) {
     $host = escapeshellcmd(base64_decode($ipdata[0]));
     $ip = escapeshellcmd(base64_decode($ipdata[1]));
     $address = array('host' => escapeshellcmd(base64_decode($ipdata[0])), 'ip' => escapeshellcmd(base64_decode($ipdata[1])));
+     if ($settings->debug)
+        echo "IP:" . $address['ip'] . " Host:" . $address['host'] . "\n";
     return $address;
 }
 
@@ -254,8 +262,8 @@ function performRepeat($test, $ch, $address, $settings) {
             recordSuccess($test, "Pass", $address, $settings);
              $time = new DateTime("now");
     $date = $time->format("c");
-            $test->lastdone =  $date;
-            saveSettings($setting);
+            $test['lastdone'] =  $date;
+            saveSettings($settings);
             return TRUE;
             break;
         } else {

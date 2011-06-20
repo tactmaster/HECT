@@ -24,6 +24,7 @@ function loadSettings() {
     $json = json_decode($filedata, true);
     
     //var_dump($json);
+    //checking it see if function exist only in new versions of PHP
     if (function_exists("json_last_error")) {
         $error = json_last_error();
 
